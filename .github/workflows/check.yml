@@ -2,11 +2,8 @@ name: check
 
 on:
   push:
-    branches:
-      - main
   pull_request:
-    branches:
-      - main
+  workflow_dispatch:
 
 jobs:
   check:
@@ -31,23 +28,19 @@ jobs:
     steps:
       - uses: actions/checkout@v7
 
-      - name: Install pnpm
-        uses: pnpm/action-setup@v4.0.0
-
-      - name: Install node
-        uses: actions/setup-node@v7
-        with:
-          node-version: lts/*
-          cache: pnpm
-
       - name: Install dependencies
-        run: pnpm ci
+        uses: pnpm/setup@v3
+        with:
+          cache: true
 
       - name: Lint
         run: pnpm lint
 
       - name: Typecheck
         run: pnpm typecheck
+
+      - name: Typecheck contract
+        run: pnpm typecheck:contract
 
       - name: Build
         run: pnpm build
