@@ -1,0 +1,58 @@
+name: release
+
+on:
+  # Every push to main or dev that passes its checks dry-runs the release.
+  workflow_run:
+    workflows:
+      - check
+    types:
+      - completed
+    branches:
+      - main
+      - dev
+  # Releases for real, from main.
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  # npm trusted publishing (OIDC) and provenance.
+  id-token: write
+
+concurrency:
+  # Under workflow_run, github.ref is always the default branch.
+  group: release-${{ github.event.workflow_run.head_branch || github.ref_name }}
+  cancel-in-progress: false
+
+jobs:
+  release:
+    if: >-
+      github.event_name == 'workflow_dispatch' ||
+      (github.event.workflow_run.conclusion == 'success' &&
+      github.event.workflow_run.event == 'push')
+    runs-on: ubuntu-latest
+    env:
+      DRY_RUN: ${{ github.event_name != 'workflow_dispatch' || github.ref_name != 'main' }}
+
+    steps:
+      # A dispatch checks out the branch itself, so the release commit can be
+      # pushed to it.
+      - name: Checkout
+        uses: actions/checkout@v7
+        with:
+          ref: ${{ github.event.workflow_run.head_sha || github.ref }}
+          fetch-depth: 0
+
+      - name: Install dependencies
+        uses: pnpm/setup@v3
+        with:
+          cache: true
+
+      - name: Release
+        uses: ryangarber/rylease@v2
+        with:
+          dry-run: ${{ env.DRY_RUN }}
+          steps: |
+            - uses: conventional
+            - uses: npm-publish
+              with:
+                provenance: true
