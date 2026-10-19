@@ -47,7 +47,7 @@
     "@biomejs/biome": "^2.5.15",
     "@prisma/orm-postgres": "8.0.0-rc.18",
     "@prisma/orm-toolchain": "8.0.0-rc.18",
-    "@ryangarber/prisma-orm-extension-zod": "^0.2.9",
+    "@ryangarber/prisma-orm-extension-zod": "^0.2.10",
     "@types/node": "^26.6.4",
     "better-auth": "^1.7.7",
     "temporal-spec": "^1.0.1",
