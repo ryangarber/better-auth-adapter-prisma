@@ -48,11 +48,16 @@ jobs:
           cache: true
 
       - name: Release
-        uses: ryangarber/rylease@v2
+        uses: ryangarber/rylease@v3
         with:
           dry-run: ${{ env.DRY_RUN }}
+          history: "[git/tags, { uses: fs/version-file, with: { format: npm } }]"
           steps: |
             - uses: conventional
-            - uses: npm-publish
+            - uses: fs/write-version
+              with: { format: npm }
+            - uses: fs/write-changes
+            - uses: git/commit
+            - uses: npm/publish
               with:
                 provenance: true
