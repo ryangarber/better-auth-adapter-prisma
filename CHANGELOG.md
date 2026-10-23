@@ -1,3 +1,10 @@
+## v0.1.12 (2026-10-23)
+
+### Other
+
+- bump dependencies ([ef888e9](https://github.com/ryangarber/better-auth-adapter-prisma/commit/ef888e9d0d8b248fac061246b0e2b250e6f6a11d))
+- bump to prisma 8.0.0-rc.20 ([fe050e8](https://github.com/ryangarber/better-auth-adapter-prisma/commit/fe050e88b2fb1ed5829ff79022658a63be15ad67))
+
 ## v0.1.11 (2026-10-23)
 
 ### Other
