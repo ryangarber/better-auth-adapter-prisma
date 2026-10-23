@@ -34,7 +34,7 @@ Declare additional fields in both the Prisma contract and Better Auth. The adapt
 For example, using [the Zod extension](https://github.com/ryangarber/prisma-orm-extension-zod):
 
 ```sh
-pnpm add @ryangarber/prisma-orm-extension-zod@0.2.5 zod
+pnpm add zod @ryangarber/prisma-orm-extension-zod
 pnpm add -D @prisma/orm-toolchain@8.0.0-rc.19
 ```
 
