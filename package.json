@@ -1,7 +1,7 @@
 {
   "name": "@ryangarber/better-auth-adapter-prisma",
   "type": "module",
-  "version": "0.1.10",
+  "version": "0.1.11",
   "description": "Better Auth adapter for Prisma 8 PostgreSQL with codec-preserving additional user fields",
   "sideEffects": false,
   "main": "./dist/index.mjs",
