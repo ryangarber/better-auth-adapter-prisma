@@ -1,4 +1,5 @@
 import postgres from "@prisma/orm-postgres/runtime";
+import { contractFromJson } from "@prisma/orm-postgres/static";
 import { betterAuth } from "better-auth";
 import { createAuthClient } from "better-auth/client";
 import { inferAdditionalFields } from "better-auth/client/plugins";
@@ -10,8 +11,8 @@ import contractJson from "./fixtures/contract.json";
 import { extension } from "./fixtures/schemas";
 
 it("infers codec inputs and outputs through the server API", () => {
-	const db = postgres<Contract>({
-		contractJson,
+	const db = postgres({
+		contract: contractFromJson<Contract>(contractJson),
 		extensions: [extension.runtime],
 	});
 	const fields = prismaUserFields<Contract, "adapter_test", "User">()({

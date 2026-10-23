@@ -1,5 +1,6 @@
 import type { BetterAuthOptions } from "@better-auth/core";
 import postgres from "@prisma/orm-postgres/runtime";
+import { contractFromJson } from "@prisma/orm-postgres/static";
 import { describe, expect, it, vi } from "vitest";
 import { dateInput, dateOutput } from "../src/dates";
 import { prismaAdapter, prismaUserFields } from "../src/index";
@@ -7,8 +8,8 @@ import type { Contract } from "./fixtures/contract";
 import contractJson from "./fixtures/contract.json";
 import { extension } from "./fixtures/schemas";
 
-const real = postgres<Contract>({
-	contractJson,
+const real = postgres({
+	contract: contractFromJson<Contract>(contractJson),
 	extensions: [extension.runtime],
 });
 function fixture(coordinates: Record<string, string[]>) {

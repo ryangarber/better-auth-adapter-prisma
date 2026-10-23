@@ -1,13 +1,13 @@
 # Better Auth adapter for Prisma 8
 
-A PostgreSQL adapter for **Prisma 8.0.0-rc.18** and **Better Auth ^1.7.5**, based on the behavior of Better Auth's Prisma 7 adapter. Uses Prisma 8's contract-driven ORM, including extension codecs, instead of the legacy Prisma Client API.
+A PostgreSQL adapter for **Prisma 8.0.0-rc.19** and **Better Auth ^1.7.5**, based on the behavior of Better Auth's Prisma 7 adapter. Uses Prisma 8's contract-driven ORM, including extension codecs, instead of the legacy Prisma Client API.
 
 Supports CRUD, filtering, selections, pagination, ordering, transactions, joins, numeric/UUID identifiers, and additional fields. PostgreSQL is the supported target; this package does not implement the separate MongoDB API or claim SQLite/MySQL support.
 
 ## Install
 
 ```sh
-pnpm add @ryangarber/better-auth-adapter-prisma better-auth @better-auth/core @prisma/orm-postgres@8.0.0-rc.18 temporal-polyfill
+pnpm add @ryangarber/better-auth-adapter-prisma better-auth @better-auth/core @prisma/orm-postgres@8.0.0-rc.19 temporal-polyfill
 ```
 
 Prisma RC versions are pinned because their query and generated-type APIs change between releases. The adapter does not create a database connection or close your client; pass your application's existing client with its runtime extensions registered.
@@ -35,7 +35,7 @@ For example, using [the Zod extension](https://github.com/ryangarber/prisma-orm-
 
 ```sh
 pnpm add @ryangarber/prisma-orm-extension-zod@0.2.5 zod
-pnpm add -D @prisma/orm-toolchain@8.0.0-rc.18
+pnpm add -D @prisma/orm-toolchain@8.0.0-rc.19
 ```
 
 ```ts
@@ -79,12 +79,15 @@ Emit the contract with `pnpm exec prisma contract emit`. Register the matching r
 // prisma/db.ts
 import "temporal-polyfill/global";
 import postgres from "@prisma/orm-postgres/runtime";
+import { contractFromJson } from "@prisma/orm-postgres/static";
 import type { Contract } from "./contract";
 import contractJson from "./contract.json" with { type: "json" };
 import { profileExtension } from "./schemas";
 
-export const db = postgres<Contract>({
-  contractJson,
+export const contract = contractFromJson<Contract>(contractJson);
+
+export const db = postgres({
+  contract,
   url: process.env.DATABASE_URL,
   extensions: [profileExtension.runtime],
 });
@@ -125,7 +128,7 @@ type User = typeof auth.$Infer.Session.user;
 // User["profile"] is { name: string; age: number }.
 ```
 
-Use the actual namespace and an unprojected collection. The helper validates field names at compile time, including a field's optional `fieldName` mapping. It reads the contract's **input** type map separately from the collection's output type: Prisma 8.0.0-rc.18's create signatures alone are insufficient for codecs with different input/output types.
+Use the actual namespace and an unprojected collection. The helper validates field names at compile time, including a field's optional `fieldName` mapping. It reads the contract's **input** type map separately from the collection's output type: Prisma 8.0.0-rc.19's create signatures alone are insufficient for codecs with different input/output types.
 
 The helper preserves `required`, `input: false`, `returned: false`, and defaulted input optionality. It types `signUpEmail` and `updateUser` bodies, full user objects returned by server endpoints, and `auth.$Infer.Session.user`. Standard response/header/status options remain available. It returns the same auth object at runtime, and checks that its `additionalFields` object was installed on that instance.
 

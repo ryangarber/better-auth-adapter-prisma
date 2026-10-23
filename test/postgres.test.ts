@@ -5,13 +5,14 @@ import { randomUUID } from "node:crypto";
 import { mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
 import { join } from "node:path";
 import type { BetterAuthOptions } from "@better-auth/core";
+import { dataTypeParams } from "@prisma/orm-postgres/components/codec";
 import { defineConfig } from "@prisma/orm-postgres/config";
 import {
-	dataTypeParams,
 	isSqlDataType,
 	renderSqlTypeName,
 } from "@prisma/orm-postgres/family-contract/data-type";
 import postgres from "@prisma/orm-postgres/runtime";
+import { contractFromJson } from "@prisma/orm-postgres/static";
 import { createPostgresBuiltinDataTypeLookup } from "@prisma/orm-postgres/target/data-types";
 import { executeContractEmit } from "@prisma/orm-toolchain/cli/control-api";
 import { betterAuth } from "better-auth";
@@ -28,8 +29,8 @@ describe.skipIf(!url)("PostgreSQL integration", () => {
 	const namespace = `ba_test_${randomUUID().replaceAll("-", "")}`;
 	let directory: string;
 	let db: ReturnType<typeof postgres>;
-	const typedDb = postgres<Contract>({
-		contractJson: staticContract,
+	const typedDb = postgres({
+		contract: contractFromJson<Contract>(staticContract),
 		extensions: [extension.runtime],
 	});
 	const fields = prismaUserFields(typedDb.orm.adapter_test.User)({
@@ -81,7 +82,7 @@ describe.skipIf(!url)("PostgreSQL integration", () => {
 		});
 		const contractJson = JSON.parse(await readFile(emitted.files.json, "utf8"));
 		db = postgres({
-			contractJson,
+			contract: contractFromJson(contractJson),
 			url: url ?? "",
 			extensions: [extension.runtime],
 			verifyMarker: false,
