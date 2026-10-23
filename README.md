@@ -25,142 +25,9 @@ export const auth = betterAuth({
 });
 ```
 
-Both `prismaAdapter` and `prisma8Adapter` name the same factory. Author and emit your `contract.prisma`, then provision it using Prisma's normal database/migration workflow. This package does not implement Better Auth CLI schema generation. A complete test contract containing the four authentication models is in [test/fixtures/contract.prisma](test/fixtures/contract.prisma); remove its example additional fields if you do not need them.
+Both `prismaAdapter` and `prisma8Adapter` name the same factory. This adapter does not currently support Better Auth CLI emission. Author and emit your `contract.prisma`, then provision it using Prisma's normal database/migration workflow.
 
-## Additional fields and extension codecs
-
-Declare additional fields in both the Prisma contract and Better Auth. The adapter passes their values through Prisma's ORM so the configured codec handles encoding and decoding. It does not JSON-stringify, clone nested values, or deserialize extension fields itself. Nullable fields, arrays, enums, branded values, and structured JSON retain their Prisma codec behavior.
-
-For example, using [the Zod extension](https://github.com/ryangarber/prisma-orm-extension-zod):
-
-```sh
-pnpm add zod @ryangarber/prisma-orm-extension-zod
-pnpm add -D @prisma/orm-toolchain@8.0.0-rc.20
-```
-
-```ts
-// prisma/schemas.ts — colocated with the emitted contract.d.ts
-import { z } from "zod";
-import type { CodecTypes } from "@ryangarber/prisma-orm-extension-zod/codec-types";
-import { createZodExtension, defineZodSchema } from "@ryangarber/prisma-orm-extension-zod/column-types";
-
-export const Profile = z.object({
-  name: z.string(),
-  age: z.string().transform(Number),
-});
-const schemas = { Profile: defineZodSchema(Profile) };
-export type SchemaTypes = CodecTypes<typeof schemas>;
-export const profileExtension: ReturnType<typeof createZodExtension> = createZodExtension(schemas, {
-  module: "./schemas",
-  export: "SchemaTypes",
-});
-```
-
-```ts
-// prisma.config.ts
-import { defineConfig } from "@prisma/orm-postgres/config";
-import { profileExtension } from "./prisma/schemas";
-
-export default defineConfig({
-  contract: "./prisma/contract.prisma",
-  extensions: [profileExtension.control],
-});
-```
-
-Add this field to your `User` model:
-
-```prisma
-profile zod.Json("Profile")
-```
-
-Emit the contract with `pnpm exec prisma contract emit`. Register the matching runtime extension:
-
-```ts
-// prisma/db.ts
-import "temporal-polyfill/global";
-import postgres from "@prisma/orm-postgres/runtime";
-import { contractFromJson } from "@prisma/orm-postgres/static";
-import type { Contract } from "./contract";
-import contractJson from "./contract.json" with { type: "json" };
-import { profileExtension } from "./schemas";
-
-export const contract = contractFromJson<Contract>(contractJson);
-
-export const db = postgres({
-  contract,
-  url: process.env.DATABASE_URL,
-  extensions: [profileExtension.runtime],
-});
-```
-
-### Infer custom user types
-
-Better Auth 1.7.5 infers `type: "json"` as a generic record and does not derive additional-field types from validators or database adapters. Use `prismaUserFields` to bridge the emitted Prisma types into your direct server API:
-
-```ts
-import { betterAuth } from "better-auth";
-import { prismaAdapter } from "@ryangarber/better-auth-adapter-prisma";
-import { prismaUserFields } from "@ryangarber/better-auth-adapter-prisma/client";
-import type { Contract } from "./prisma/contract";
-import { db } from "./prisma/db";
-
-export const userFields = prismaUserFields<Contract, "public", "User">()({
-  profile: { type: "json", required: true },
-});
-
-export const auth = userFields.inferAuth(betterAuth({
-  database: prismaAdapter(db),
-  emailAndPassword: { enabled: true },
-  user: { additionalFields: userFields.additionalFields },
-}));
-
-const result = await auth.api.signUpEmail({
-  body: {
-    email: "ada@example.com",
-    name: "Ada",
-    password: "a sufficiently long password",
-    profile: { name: "Ada", age: "36" }, // Write input: string.
-  },
-});
-result.user.profile.age; // Read output: number.
-
-type User = typeof auth.$Infer.Session.user;
-// User["profile"] is { name: string; age: number }.
-```
-
-Use the actual namespace and an unprojected collection. The helper validates field names at compile time, including a field's optional `fieldName` mapping. It reads the contract's **input** type map separately from the collection's output type: Prisma 8.0.0-rc.20's create signatures alone are insufficient for codecs with different input/output types.
-
-The helper preserves `required`, `input: false`, `returned: false`, and defaulted input optionality. It types `signUpEmail` and `updateUser` bodies, full user objects returned by server endpoints, and `auth.$Infer.Session.user`. Standard response/header/status options remain available. It returns the same auth object at runtime, and checks that its `additionalFields` object was installed on that instance.
-
-Declare custom structured values as `type: "json"`. Use `type: "date"` for ordinary JavaScript `Date` fields. Keep any Better Auth `transform` or transforming `validator.input` consistent with the codec's input/output: those run independently of Prisma, and the helper does not infer their effects. In particular, passing the transforming `Profile` schema above as a Better Auth input validator would convert `age` before Prisma receives it; let the Prisma codec validate it instead.
-
-The contract-only form uses a type-only import from `contract.d.ts`; it needs neither `contract.json` nor a database instance. You can put `userFields` in a shared module using the `/client` import above and call `userFields.inferClient(client)` there. Keep database and server auth imports in the server module. The existing `prismaUserFields(db.orm.public.User)` form remains supported for server usage.
-
-For the client, keep Better Auth's `inferAdditionalFields` plugin and wrap the client with `inferAuthClient`. The `/client` entry point has no server runtime dependencies; import the server field helper only as a type:
-
-```ts
-import { createAuthClient } from "better-auth/client";
-import { inferAdditionalFields } from "better-auth/client/plugins";
-import { inferAuthClient } from "@ryangarber/better-auth-adapter-prisma/client";
-import type { auth, userFields } from "./auth";
-
-export const authClient = inferAuthClient<typeof userFields>()(createAuthClient({
-  plugins: [inferAdditionalFields<typeof auth>()],
-}));
-
-await authClient.signUp.email({
-  email: "ada@example.com",
-  name: "Ada",
-  password: "a sufficiently long password",
-  profile: { name: "Ada", age: "36" },
-});
-const session = await authClient.getSession();
-session.data?.user.profile.age; // number
-```
-
-This preserves codec input/output types on signup, updates, session results, and `$Infer.Session`. Where the field helper is already available at runtime, `userFields.inferClient(client)` provides the same type view. Both wrappers return the original client unchanged. Better Auth's plugin alone still uses its primitive field inference.
-
-**Scope of inference:** these helpers do not change Better Auth's hook/context types or plugin-defined input bodies. Standard JSON HTTP responses also have different semantics from decoded database values: JSON turns dates into strings, cannot serialize `bigint`, and does not preserve `Map`/`Set` instances. Use JSON-compatible public fields or an explicit serializer/client type layer for those values; the adapter and helper do not install an HTTP serializer. Cookie caching and other serialized stores have the same transport considerations.
+A complete test contract containing the four authentication models is in [test/fixtures/contract.prisma](test/fixtures/contract.prisma).
 
 ## Names and defaults
 
@@ -199,7 +66,104 @@ betterAuth({
 
 Explicit `models` mappings are exact: a misspelling fails rather than silently falling back. The same resolution applies inside transactions and joins. Joins use Better Auth's foreign-key metadata and separate ORM queries, so they do not require guessed Prisma relation-property names. They are not single-statement SQL joins; use a suitable transaction/isolation strategy if your application needs a consistent snapshot across those reads.
 
-## Query behavior
+
+## Addtional fields and extensions
+
+Declare additional fields in both the Prisma contract and Better Auth. The adapter passes their values through Prisma's ORM so the configured codec handles encoding and decoding. It does not JSON-stringify, clone nested values, or deserialize extension fields itself. Nullable fields, arrays, enums, branded values, and structured JSON retain their Prisma codec behavior.
+
+### Example: Zod extension
+
+For example, you can use [the Zod extension](https://github.com/ryangarber/prisma-orm-extension-zod) for typed `additionalFields`:
+
+Assuming you already have a Zod schema called `Profile` in your `User` model:
+
+```ts
+// prisma/schemas.ts
+import { z } from "zod";
+
+export const Profile = z.object({
+  name: z.string(),
+  age: z.string().transform(Number),
+});
+```
+
+```prisma
+
+model User {
+  ...
+  profile  zod.Json("Profile")
+}
+```
+
+#### Server-side
+
+You must use `type: "json"`. Better Auth treats this as generic record, allowing you to wrap the field with `prismaUserFields`:
+
+```ts
+import { betterAuth } from "better-auth";
+import { prismaAdapter } from "@ryangarber/better-auth-adapter-prisma";
+import { prismaUserFields } from "@ryangarber/better-auth-adapter-prisma/client";
+import type { Contract } from "./prisma/contract";
+import { db } from "./prisma/db";
+
+export const userFields = prismaUserFields<Contract, "public", "User">()({
+  profile: { type: "json", required: true },
+});
+
+export const auth = userFields.inferAuth(betterAuth({
+  database: prismaAdapter(db),
+  emailAndPassword: { enabled: true },
+  user: { additionalFields: userFields.additionalFields },
+}));
+
+const result = await auth.api.signUpEmail({
+  body: {
+    email: "ada@example.com",
+    name: "Ada",
+    password: "a sufficiently long password",
+    profile: { name: "Ada", age: "36" }, // Write input: string.
+  },
+});
+// result.user.profile.age is number.
+
+type User = typeof auth.$Infer.Session.user; // User["profile"] is { name: string; age: number }.
+```
+
+This types `signUpEmail` and `updateUser` bodies, full user objects returned by server endpoints, and `auth.$Infer.Session.user`.
+It returns the same auth object at runtime, and checks that its `additionalFields` object was installed on that instance.
+
+#### Client-side
+
+Import the runtime-free, browser-safe `/client` wrapper and import your `userFields` as a type for the same typed fields on the client:
+
+```ts
+import { createAuthClient } from "better-auth/client";
+import { inferAdditionalFields } from "better-auth/client/plugins";
+import { inferAuthClient } from "@ryangarber/better-auth-adapter-prisma/client";
+import type { auth, userFields } from "./auth";
+
+export const authClient = inferAuthClient<typeof userFields>()(createAuthClient({
+  plugins: [inferAdditionalFields<typeof auth>()],
+}));
+
+await authClient.signUp.email({
+  email: "ada@example.com",
+  name: "Ada",
+  password: "a sufficiently long password",
+  profile: { name: "Ada", age: "36" },
+});
+const session = await authClient.getSession();
+session.data?.user.profile.age; // age is number
+```
+
+This preserves codec input/output types on signup, updates, session results, and `$Infer.Session`.
+
+> Note that these helpers do not change Better Auth's hook/context types or plugin-defined input bodies, nor do they change how the fields are serialized.
+> This means that fields that are not supported in basic JSON requests (`bigint`, `Map`, etc.) may not deserialize the way you expect.
+
+## Technical details
+
+The adapter tries to match the official Prisma 7 adapter exactly:
 
 - Equality, inequality, comparisons, `in`/`not_in`, and string contains/prefix/suffix filters are supported. Case-insensitive string filters use database `lower(...)`; LIKE wildcard characters are escaped as literals.
 - AND conditions are combined with the OR group, matching the original adapter. Null list members are removed; an empty `in` matches nothing and an empty `not_in` matches everything.
