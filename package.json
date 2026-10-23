@@ -47,7 +47,7 @@
     "@biomejs/biome": "^2.6.2",
     "@prisma/orm-postgres": "8.0.0-rc.20",
     "@prisma/orm-toolchain": "8.0.0-rc.20",
-    "@ryangarber/prisma-orm-extension-zod": "^0.2.11",
+    "@ryangarber/prisma-orm-extension-zod": "^0.2.12",
     "@types/node": "^26.6.5",
     "better-auth": "^1.7.12",
     "temporal-spec": "^1.0.1",
@@ -68,7 +68,7 @@
   "devEngines": {
     "runtime": {
       "name": "node",
-      "version": "^24.0.0",
+      "version": "^24.22.1",
       "onFail": "download"
     }
   }
