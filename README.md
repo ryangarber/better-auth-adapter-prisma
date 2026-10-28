@@ -1,13 +1,13 @@
 # Better Auth adapter for Prisma 8
 
-A PostgreSQL adapter for **Prisma 8.0.0-rc.20** and **Better Auth ^1.7.5**, based on the behavior of Better Auth's Prisma 7 adapter. Uses Prisma 8's contract-driven ORM, including extension codecs, instead of the legacy Prisma Client API.
+A PostgreSQL adapter for **Prisma 8.0.0-rc.21** and **Better Auth ^1.7.5**, based on the behavior of Better Auth's Prisma 7 adapter. Uses Prisma 8's contract-driven ORM, including extension codecs, instead of the legacy Prisma Client API.
 
 Supports CRUD, filtering, selections, pagination, ordering, transactions, joins, numeric/UUID identifiers, and additional fields. PostgreSQL is the supported target; this package does not implement the separate MongoDB API or claim SQLite/MySQL support.
 
 ## Install
 
 ```sh
-pnpm add @ryangarber/better-auth-adapter-prisma better-auth @better-auth/core @prisma/orm-postgres@8.0.0-rc.20 temporal-polyfill
+pnpm add @ryangarber/better-auth-adapter-prisma better-auth @better-auth/core @prisma/orm-postgres@8.0.0-rc.21 temporal-polyfill
 ```
 
 Prisma RC versions are pinned because their query and generated-type APIs change between releases. The adapter does not create a database connection or close your client; pass your application's existing client with its runtime extensions registered.
