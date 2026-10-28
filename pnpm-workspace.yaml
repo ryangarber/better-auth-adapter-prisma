@@ -3,3 +3,4 @@ allowBuilds:
 minimumReleaseAgeExclude:
   - '@ryangarber/*'
   - '@prisma/*'
+  - tsdown@0.23.3

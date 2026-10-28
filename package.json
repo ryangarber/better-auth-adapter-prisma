@@ -43,15 +43,15 @@
   "author": "Ryan Garber <ryanmichaelgarber@gmail.com>",
   "license": "MIT",
   "devDependencies": {
-    "@better-auth/core": "^1.7.12",
-    "@biomejs/biome": "^2.6.2",
-    "@prisma/orm-postgres": "8.0.0-rc.20",
-    "@prisma/orm-toolchain": "8.0.0-rc.20",
-    "@ryangarber/prisma-orm-extension-zod": "^0.2.12",
+    "@better-auth/core": "^1.7.14",
+    "@biomejs/biome": "^2.6.3",
+    "@prisma/orm-postgres": "8.0.0-rc.21",
+    "@prisma/orm-toolchain": "8.0.0-rc.21",
+    "@ryangarber/prisma-orm-extension-zod": "^0.2.13",
     "@types/node": "^26.6.5",
-    "better-auth": "^1.7.12",
+    "better-auth": "^1.7.14",
     "temporal-spec": "^1.0.1",
-    "tsdown": "^0.23.1",
+    "tsdown": "^0.23.3",
     "typescript": "^7.0.2",
     "vitest": "^5.0.5",
     "zod": "^4.6.7"
@@ -59,7 +59,7 @@
   "types": "./dist/index.d.mts",
   "peerDependencies": {
     "@better-auth/core": "^1.7.0",
-    "@prisma/orm-postgres": "8.0.0-rc.20"
+    "@prisma/orm-postgres": "8.0.0-rc.21"
   },
   "dependencies": {
     "temporal-polyfill": "^1.0.6"
@@ -68,7 +68,7 @@
   "devEngines": {
     "runtime": {
       "name": "node",
-      "version": "^24.22.1",
+      "version": "^24.22.2",
       "onFail": "download"
     }
   }
