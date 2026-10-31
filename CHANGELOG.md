@@ -1,3 +1,10 @@
+## v0.1.14 (2026-10-31)
+
+### Other
+
+- upgrade @prisma/orm-* to 8.0.0-rc.22 ([3b975f5](https://github.com/ryangarber/better-auth-adapter-prisma/commit/3b975f508f94db2ffc6803479e7a2ee5a4a7d8a3))
+- widen better auth version range ([3b975f5](https://github.com/ryangarber/better-auth-adapter-prisma/commit/3b975f508f94db2ffc6803479e7a2ee5a4a7d8a3))
+
 ## v0.1.13 (2026-10-28)
 
 ### Other
