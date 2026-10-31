@@ -51,6 +51,7 @@ interface Query {
 	orderBy(predicate: (fields: Fields) => AnyExpression): Query;
 	limit(value: number): Query;
 	offset(value: number): Query;
+	forUpdate(): Query;
 	create(data: unknown): Promise<Row>;
 	first(): Promise<Row | null>;
 	all(): PromiseLike<Row[]>;
@@ -89,7 +90,9 @@ export function prismaWhere(
 		if (w.value === null && (op === "eq" || op === "ne")) {
 			return call(field, op === "eq" ? "isNull" : "isNotNull");
 		}
-		const insensitive = w.mode === "insensitive";
+		// `mode` exists on Where from Better Auth 1.6; older versions never send it.
+		const insensitive =
+			(w as { mode?: "sensitive" | "insensitive" }).mode === "insensitive";
 		if (op === "in" || op === "not_in") {
 			if (!Array.isArray(w.value))
 				throw new BetterAuthError(`${op} requires an array`);
@@ -213,28 +216,62 @@ export function prismaAdapter<C extends Contract<SqlStorage>>(
 							dateOutput(dateCodec(model, field), value),
 						]),
 					);
-				const query = (model: string, where?: readonly Where[]) => {
-					const coordinate = resolve(model);
-					const surface = orm as Record<string, Record<string, Query>>;
-					const collection = surface[coordinate.namespace]?.[coordinate.model];
-					if (!collection)
-						throw new BetterAuthError(
-							`Prisma 8 collection ${coordinate.namespace}.${coordinate.model} is unavailable`,
-						);
-					return where === undefined
-						? collection
-						: collection.where((fields) =>
-								prismaWhere(
-									fields,
-									where.map((w) => ({
-										...w,
-										value: dateInput(
-											dateCodec(model, w.field),
-											w.value,
-										) as Where["value"],
-									})),
-								),
+				const queryOn =
+					(orm: unknown) => (model: string, where?: readonly Where[]) => {
+						const coordinate = resolve(model);
+						const surface = orm as Record<string, Record<string, Query>>;
+						const collection =
+							surface[coordinate.namespace]?.[coordinate.model];
+						if (!collection)
+							throw new BetterAuthError(
+								`Prisma 8 collection ${coordinate.namespace}.${coordinate.model} is unavailable`,
 							);
+						return where === undefined
+							? collection
+							: collection.where((fields) =>
+									prismaWhere(
+										fields,
+										where.map((w) => ({
+											...w,
+											value: dateInput(
+												dateCodec(model, w.field),
+												w.value,
+											) as Where["value"],
+										})),
+									),
+								);
+					};
+				const query = queryOn(orm);
+				// Run in the current transaction, or open one: row locks need a transaction to hold them.
+				const atomically = <R>(
+					fn: (q: typeof query) => Promise<R>,
+				): Promise<R> =>
+					inTransaction
+						? fn(query)
+						: db.transaction((tx) => fn(queryOn(tx.orm)));
+				// Lock the first matching row (SELECT ... FOR UPDATE) and address it by id. A concurrent
+				// caller blocks on the lock, then PostgreSQL re-evaluates its predicate against the
+				// committed row: a consumed row no longer exists and a guard that no longer holds no
+				// longer matches, so the racer gets null.
+				const lockOne = async (
+					q: typeof query,
+					model: string,
+					where: readonly Where[],
+				) => {
+					const row = await q(model, where).forUpdate().first();
+					if (!row) return null;
+					const id = getFieldName({ model, field: "id" });
+					return {
+						row,
+						byId: q(model, [
+							{
+								field: id,
+								value: row[id] as Where["value"],
+								operator: "eq",
+								connector: "AND",
+							},
+						]),
+					};
 				};
 				const selectQuery = (q: Query, model: string, select?: string[]) =>
 					select?.length
@@ -360,8 +397,48 @@ export function prismaAdapter<C extends Contract<SqlStorage>>(
 					},
 					deleteMany: ({ model, where }) =>
 						query(model, where).deleteAndCount(),
-					// Better Auth's compare-and-swap fallbacks use atomic updateAndCount/deleteAndCount.
-					// Prisma's single-row update/delete first select an identity; they are not CAS primitives.
+					// Native atomic primitives, used by Better Auth 1.7+ (and required by 1.7.0-1.7.2).
+					// Prisma's ORM binds update values as parameters, so `SET n = n + $delta` isn't
+					// expressible, and its single-row update/delete don't re-check the predicate.
+					// Instead, lock the row and mutate it by id in the same transaction.
+					consumeOne: <T>({
+						model,
+						where,
+					}: {
+						model: string;
+						where: Where[];
+					}) =>
+						atomically(async (q) => {
+							const target = await lockOne(q, model, where);
+							const row = target && (await target.byId.delete());
+							return (row ? outputRow(model, row) : null) as T | null;
+						}),
+					incrementOne: <T>({
+						model,
+						where,
+						increment,
+						set,
+					}: {
+						model: string;
+						where: Where[];
+						increment: Record<string, number>;
+						set?: Record<string, unknown> | undefined;
+					}) =>
+						atomically(async (q) => {
+							const target = await lockOne(q, model, where);
+							if (!target) return null;
+							const update: Row = { ...set };
+							for (const [field, delta] of Object.entries(increment)) {
+								const current = target.row[field] ?? 0;
+								if (typeof current !== "number" || !Number.isFinite(delta))
+									throw new BetterAuthError(
+										`incrementOne requires a numeric '${field}' field and a finite delta`,
+									);
+								update[field] = current + delta;
+							}
+							const row = await target.byId.update(inputData(model, update));
+							return (row ? outputRow(model, row) : null) as T | null;
+						}),
 					options: config,
 				};
 			};

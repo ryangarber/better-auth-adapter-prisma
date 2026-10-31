@@ -2,9 +2,11 @@ import "temporal-polyfill/global";
 
 import { execFileSync } from "node:child_process";
 import { randomUUID } from "node:crypto";
+import { readFileSync } from "node:fs";
 import { mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
 import { join } from "node:path";
 import type { BetterAuthOptions } from "@better-auth/core";
+import type { DBAdapter, Where } from "@better-auth/core/db/adapter";
 import { dataTypeParams } from "@prisma/orm-postgres/components/codec";
 import { defineConfig } from "@prisma/orm-postgres/config";
 import {
@@ -22,6 +24,45 @@ import staticContract from "./fixtures/contract.json";
 import { extension } from "./fixtures/schemas";
 
 const { ADAPTER_TEST_DATABASE_URL: url } = process.env;
+
+// The suite runs against a matrix of Better Auth versions (see .github/workflows/check.yml).
+// Features that Better Auth itself added after the peer range floor are gated here.
+const betterAuthVersion: string = JSON.parse(
+	readFileSync(
+		new URL("../node_modules/@better-auth/core/package.json", import.meta.url),
+		"utf8",
+	),
+).version;
+const [major = 0, minor = 0] = betterAuthVersion.split(".").map(Number);
+const atLeast = (wantMinor: number) => major > 1 || minor >= wantMinor;
+// Case-insensitive `mode` on Where: Better Auth 1.6.
+const supportsInsensitive = atLeast(6);
+// Better Auth exposes consumeOne/incrementOne on the adapter from 1.7.
+const supportsAtomic = atLeast(7);
+// Spread into Where literals so they typecheck whether or not `mode` exists on Where.
+const insensitive: Partial<Where> = { mode: "insensitive" } as Partial<Where>;
+// The joins flag moved from `experimental.joins` (<= 1.6) to `advanced.database.joins` (1.7).
+const joinOptions = {
+	...(atLeast(7)
+		? { advanced: { database: { joins: true } } }
+		: { experimental: { joins: true } }),
+} as BetterAuthOptions;
+// Before 1.7, DBAdapter has no atomic primitives; give the (skipped) tests a loose shape.
+type AtomicArgs = {
+	model: string;
+	where: Where[];
+	increment?: Record<string, number>;
+	set?: Record<string, unknown>;
+};
+type AtomicAdapter = DBAdapter extends {
+	consumeOne: unknown;
+	incrementOne: unknown;
+}
+	? DBAdapter
+	: DBAdapter & {
+			consumeOne(args: AtomicArgs): Promise<unknown>;
+			incrementOne(args: AtomicArgs): Promise<unknown>;
+		};
 const quote = (value: string) => `"${value.replaceAll('"', '""')}"`;
 const dataTypes = createPostgresBuiltinDataTypeLookup();
 
@@ -262,48 +303,51 @@ describe.skipIf(!url)("PostgreSQL integration", () => {
 			}),
 		).toBe(2);
 	});
-	it("handles case-insensitive filters and treats LIKE metacharacters literally", async () => {
-		await adapter().create({
-			model: "user",
-			data: { ...user(), name: "A%_\\B" },
-		});
-		await adapter().create({
-			model: "user",
-			data: { ...user(), name: "axxxb" },
-		});
-		expect(
-			await adapter().count({
+	it.skipIf(!supportsInsensitive)(
+		"handles case-insensitive filters and treats LIKE metacharacters literally",
+		async () => {
+			await adapter().create({
 				model: "user",
-				where: [
-					{
-						field: "name",
-						operator: "contains",
-						value: "%_\\",
-						mode: "insensitive",
-					},
-				],
-			}),
-		).toBe(1);
-		expect(
-			await adapter().count({
+				data: { ...user(), name: "A%_\\B" },
+			});
+			await adapter().create({
 				model: "user",
-				where: [{ field: "name", value: "AXXXB", mode: "insensitive" }],
-			}),
-		).toBe(1);
-		expect(
-			await adapter().count({
-				model: "user",
-				where: [
-					{
-						field: "name",
-						operator: "in",
-						value: ["AXXXB"],
-						mode: "insensitive",
-					},
-				],
-			}),
-		).toBe(1);
-	});
+				data: { ...user(), name: "axxxb" },
+			});
+			expect(
+				await adapter().count({
+					model: "user",
+					where: [
+						{
+							field: "name",
+							operator: "contains",
+							value: "%_\\",
+							...insensitive,
+						},
+					],
+				}),
+			).toBe(1);
+			expect(
+				await adapter().count({
+					model: "user",
+					where: [{ field: "name", value: "AXXXB", ...insensitive }],
+				}),
+			).toBe(1);
+			expect(
+				await adapter().count({
+					model: "user",
+					where: [
+						{
+							field: "name",
+							operator: "in",
+							value: ["AXXXB"],
+							...insensitive,
+						},
+					],
+				}),
+			).toBe(1);
+		},
+	);
 	it("converts Date predicates through Prisma's built-in codec", async () => {
 		const data = user();
 		await adapter().create({ model: "user", data });
@@ -366,7 +410,7 @@ describe.skipIf(!url)("PostgreSQL integration", () => {
 		expect(await adapter().count({ model: "user" })).toBe(0);
 	});
 	it("joins via Better Auth FK metadata without relation property names", async () => {
-		const a = adapter({ advanced: { database: { joins: true } } });
+		const a = adapter(joinOptions);
 		const u = await a.create({ model: "user", data: user() });
 		await a.create({
 			model: "session",
@@ -393,45 +437,149 @@ describe.skipIf(!url)("PostgreSQL integration", () => {
 			}),
 		).toMatchObject({ session: [{ token: "token" }] });
 	});
-	it("consumes a verification exactly once under concurrent requests", async () => {
-		const a = adapter();
-		await a.create({
-			model: "verification",
-			data: {
-				identifier: "one-time",
-				value: "secret",
-				createdAt: new Date(),
-				updatedAt: new Date(),
-				expiresAt: new Date(Date.now() + 10000),
-			},
-		});
-		const results = await Promise.all(
-			Array.from({ length: 8 }, () =>
-				a.consumeOne({
+	it.skipIf(!supportsAtomic)(
+		"consumes a verification exactly once under concurrent requests",
+		async () => {
+			const a = adapter() as AtomicAdapter;
+			await a.create({
+				model: "verification",
+				data: {
+					identifier: "one-time",
+					value: "secret",
+					createdAt: new Date(),
+					updatedAt: new Date(),
+					expiresAt: new Date(Date.now() + 10000),
+				},
+			});
+			const results = await Promise.all(
+				Array.from({ length: 8 }, () =>
+					a.consumeOne({
+						model: "verification",
+						where: [{ field: "identifier", value: "one-time" }],
+					}),
+				),
+			);
+			expect(results.filter(Boolean)).toHaveLength(1);
+		},
+	);
+	it.skipIf(!supportsAtomic)(
+		"guards concurrent increments atomically",
+		async () => {
+			const a = adapter() as AtomicAdapter;
+			const u = await a.create({
+				model: "user",
+				data: { ...user(), score: 0 },
+			});
+			const results = await Promise.all(
+				Array.from({ length: 4 }, () =>
+					a.incrementOne({
+						model: "user",
+						where: [
+							{ field: "id", value: u["id"] },
+							{ field: "score", operator: "lt", value: 1 },
+						],
+						increment: { score: 1 },
+					}),
+				),
+			);
+			expect(results.filter(Boolean)).toHaveLength(1);
+		},
+	);
+	it.skipIf(!supportsAtomic)(
+		"consumes only one row of a non-unique match and returns it",
+		async () => {
+			const a = adapter() as AtomicAdapter;
+			const verification = (value: string) => ({
+				model: "verification",
+				data: {
+					identifier: "shared",
+					value,
+					createdAt: new Date(),
+					updatedAt: new Date(),
+					expiresAt: new Date(Date.now() + 10000),
+				},
+			});
+			await a.create(verification("a"));
+			await a.create(verification("b"));
+			const where = [{ field: "identifier", value: "shared" }];
+			const consumed = await a.consumeOne({ model: "verification", where });
+			expect(consumed).toMatchObject({ identifier: "shared" });
+			expect((consumed as { expiresAt: unknown }).expiresAt).toBeInstanceOf(
+				Date,
+			);
+			expect(await a.count({ model: "verification", where })).toBe(1);
+			expect(
+				await a.consumeOne({
 					model: "verification",
-					where: [{ field: "identifier", value: "one-time" }],
+					where: [{ field: "identifier", value: "missing" }],
 				}),
-			),
-		);
-		expect(results.filter(Boolean)).toHaveLength(1);
-	});
-	it("guards concurrent increments atomically", async () => {
-		const a = adapter();
-		const u = await a.create({ model: "user", data: { ...user(), score: 0 } });
-		const results = await Promise.all(
-			Array.from({ length: 4 }, () =>
-				a.incrementOne({
+			).toBeNull();
+		},
+	);
+	it.skipIf(!supportsAtomic)(
+		"increments from null, applies negative deltas and sets fields in one step",
+		async () => {
+			const a = adapter() as AtomicAdapter;
+			const u = await a.create({ model: "user", data: user() });
+			const where = [{ field: "id", value: u["id"] }];
+			expect(
+				await a.incrementOne({
 					model: "user",
-					where: [
-						{ field: "id", value: u["id"] },
-						{ field: "score", operator: "lt", value: 1 },
-					],
+					where,
+					increment: { score: 3 },
+					set: { role: "admin" },
+				}),
+			).toMatchObject({ score: 3, role: "admin", profile: { age: 36 } });
+			expect(
+				await a.incrementOne({
+					model: "user",
+					where,
+					increment: { score: -2 },
+				}),
+			).toMatchObject({ score: 1 });
+			expect(
+				await a.incrementOne({
+					model: "user",
+					where: [...where, { field: "score", operator: "gt", value: 5 }],
 					increment: { score: 1 },
 				}),
-			),
-		);
-		expect(results.filter(Boolean)).toHaveLength(1);
-	});
+			).toBeNull();
+		},
+	);
+	it.skipIf(!supportsAtomic)(
+		"runs atomic primitives inside Better Auth transactions",
+		async () => {
+			const transactional = adapter({}, { transaction: true });
+			const u = await transactional.create({
+				model: "user",
+				data: { ...user(), score: 0 },
+			});
+			const where = [{ field: "id", value: u["id"] }];
+			await expect(
+				transactional.transaction(async (tx) => {
+					await (tx as unknown as AtomicAdapter).incrementOne({
+						model: "user",
+						where,
+						increment: { score: 1 },
+					});
+					throw new Error("rollback");
+				}),
+			).rejects.toThrow("rollback");
+			expect(
+				await transactional.findOne({ model: "user", where }),
+			).toMatchObject({ score: 0 });
+			await transactional.transaction((tx) =>
+				(tx as unknown as AtomicAdapter).incrementOne({
+					model: "user",
+					where,
+					increment: { score: 1 },
+				}),
+			);
+			expect(
+				await transactional.findOne({ model: "user", where }),
+			).toMatchObject({ score: 1 });
+		},
+	);
 	it("runs Better Auth signup, session reads and updates with inferred codec types", async () => {
 		const auth = fields.inferAuth(
 			betterAuth({

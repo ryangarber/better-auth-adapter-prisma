@@ -41,8 +41,11 @@
               "accessTokenExpiresAt": {
                 "nullable": true,
                 "type": {
-                  "codecId": "pg/timestamptz-temporal@1",
-                  "kind": "scalar"
+                  "codecId": "pg/timestamptz-date@1",
+                  "kind": "scalar",
+                  "typeParams": {
+                    "precision": 3
+                  }
                 }
               },
               "accountId": {
@@ -55,8 +58,11 @@
               "createdAt": {
                 "nullable": false,
                 "type": {
-                  "codecId": "pg/timestamptz-temporal@1",
-                  "kind": "scalar"
+                  "codecId": "pg/timestamptz-date@1",
+                  "kind": "scalar",
+                  "typeParams": {
+                    "precision": 3
+                  }
                 }
               },
               "id": {
@@ -67,6 +73,13 @@
                 }
               },
               "idToken": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "issuer": {
                 "nullable": true,
                 "type": {
                   "codecId": "pg/text@1",
@@ -97,8 +110,11 @@
               "refreshTokenExpiresAt": {
                 "nullable": true,
                 "type": {
-                  "codecId": "pg/timestamptz-temporal@1",
-                  "kind": "scalar"
+                  "codecId": "pg/timestamptz-date@1",
+                  "kind": "scalar",
+                  "typeParams": {
+                    "precision": 3
+                  }
                 }
               },
               "scope": {
@@ -111,8 +127,11 @@
               "updatedAt": {
                 "nullable": false,
                 "type": {
-                  "codecId": "pg/timestamptz-temporal@1",
-                  "kind": "scalar"
+                  "codecId": "pg/timestamptz-date@1",
+                  "kind": "scalar",
+                  "typeParams": {
+                    "precision": 3
+                  }
                 }
               },
               "userId": {
@@ -143,6 +162,9 @@
                 },
                 "idToken": {
                   "column": "idToken"
+                },
+                "issuer": {
+                  "column": "issuer"
                 },
                 "password": {
                   "column": "password"
@@ -182,8 +204,11 @@
               "created": {
                 "nullable": false,
                 "type": {
-                  "codecId": "pg/timestamptz-temporal@1",
-                  "kind": "scalar"
+                  "codecId": "pg/timestamptz-date@1",
+                  "kind": "scalar",
+                  "typeParams": {
+                    "precision": 3
+                  }
                 }
               },
               "displayName": {
@@ -222,8 +247,11 @@
               "updated": {
                 "nullable": false,
                 "type": {
-                  "codecId": "pg/timestamptz-temporal@1",
-                  "kind": "scalar"
+                  "codecId": "pg/timestamptz-date@1",
+                  "kind": "scalar",
+                  "typeParams": {
+                    "precision": 3
+                  }
                 }
               },
               "verified": {
@@ -271,15 +299,21 @@
               "createdAt": {
                 "nullable": false,
                 "type": {
-                  "codecId": "pg/timestamptz-temporal@1",
-                  "kind": "scalar"
+                  "codecId": "pg/timestamptz-date@1",
+                  "kind": "scalar",
+                  "typeParams": {
+                    "precision": 3
+                  }
                 }
               },
               "expiresAt": {
                 "nullable": false,
                 "type": {
-                  "codecId": "pg/timestamptz-temporal@1",
-                  "kind": "scalar"
+                  "codecId": "pg/timestamptz-date@1",
+                  "kind": "scalar",
+                  "typeParams": {
+                    "precision": 3
+                  }
                 }
               },
               "id": {
@@ -306,8 +340,11 @@
               "updatedAt": {
                 "nullable": false,
                 "type": {
-                  "codecId": "pg/timestamptz-temporal@1",
-                  "kind": "scalar"
+                  "codecId": "pg/timestamptz-date@1",
+                  "kind": "scalar",
+                  "typeParams": {
+                    "precision": 3
+                  }
                 }
               },
               "userAgent": {
@@ -362,8 +399,11 @@
               "createdAt": {
                 "nullable": false,
                 "type": {
-                  "codecId": "pg/timestamptz-temporal@1",
-                  "kind": "scalar"
+                  "codecId": "pg/timestamptz-date@1",
+                  "kind": "scalar",
+                  "typeParams": {
+                    "precision": 3
+                  }
                 }
               },
               "email": {
@@ -397,8 +437,11 @@
               "lastSeen": {
                 "nullable": true,
                 "type": {
-                  "codecId": "pg/timestamptz-temporal@1",
-                  "kind": "scalar"
+                  "codecId": "pg/timestamptz-date@1",
+                  "kind": "scalar",
+                  "typeParams": {
+                    "precision": 3
+                  }
                 }
               },
               "name": {
@@ -456,8 +499,11 @@
               "updatedAt": {
                 "nullable": false,
                 "type": {
-                  "codecId": "pg/timestamptz-temporal@1",
-                  "kind": "scalar"
+                  "codecId": "pg/timestamptz-date@1",
+                  "kind": "scalar",
+                  "typeParams": {
+                    "precision": 3
+                  }
                 }
               }
             },
@@ -513,15 +559,21 @@
               "createdAt": {
                 "nullable": false,
                 "type": {
-                  "codecId": "pg/timestamptz-temporal@1",
-                  "kind": "scalar"
+                  "codecId": "pg/timestamptz-date@1",
+                  "kind": "scalar",
+                  "typeParams": {
+                    "precision": 3
+                  }
                 }
               },
               "expiresAt": {
                 "nullable": false,
                 "type": {
-                  "codecId": "pg/timestamptz-temporal@1",
-                  "kind": "scalar"
+                  "codecId": "pg/timestamptz-date@1",
+                  "kind": "scalar",
+                  "typeParams": {
+                    "precision": 3
+                  }
                 }
               },
               "id": {
@@ -541,8 +593,11 @@
               "updatedAt": {
                 "nullable": false,
                 "type": {
-                  "codecId": "pg/timestamptz-temporal@1",
-                  "kind": "scalar"
+                  "codecId": "pg/timestamptz-date@1",
+                  "kind": "scalar",
+                  "typeParams": {
+                    "precision": 3
+                  }
                 }
               },
               "value": {
@@ -596,9 +651,12 @@
                   "nullable": true
                 },
                 "created": {
-                  "codecId": "pg/timestamptz-temporal@1",
+                  "codecId": "pg/timestamptz-date@1",
                   "dataType": "pg/timestamptz",
-                  "nullable": false
+                  "nullable": false,
+                  "typeParams": {
+                    "precision": 3
+                  }
                 },
                 "displayName": {
                   "codecId": "pg/text@1",
@@ -626,9 +684,12 @@
                   }
                 },
                 "updated": {
-                  "codecId": "pg/timestamptz-temporal@1",
+                  "codecId": "pg/timestamptz-date@1",
                   "dataType": "pg/timestamptz",
-                  "nullable": false
+                  "nullable": false,
+                  "typeParams": {
+                    "precision": 3
+                  }
                 },
                 "verified": {
                   "codecId": "pg/bool@1",
@@ -654,9 +715,12 @@
             "People": {
               "columns": {
                 "createdAt": {
-                  "codecId": "pg/timestamptz-temporal@1",
+                  "codecId": "pg/timestamptz-date@1",
                   "dataType": "pg/timestamptz",
-                  "nullable": false
+                  "nullable": false,
+                  "typeParams": {
+                    "precision": 3
+                  }
                 },
                 "email": {
                   "codecId": "pg/text@1",
@@ -679,9 +743,12 @@
                   "nullable": true
                 },
                 "lastSeen": {
-                  "codecId": "pg/timestamptz-temporal@1",
+                  "codecId": "pg/timestamptz-date@1",
                   "dataType": "pg/timestamptz",
-                  "nullable": true
+                  "nullable": true,
+                  "typeParams": {
+                    "precision": 3
+                  }
                 },
                 "name": {
                   "codecId": "pg/text@1",
@@ -724,9 +791,12 @@
                   "nullable": true
                 },
                 "updatedAt": {
-                  "codecId": "pg/timestamptz-temporal@1",
+                  "codecId": "pg/timestamptz-date@1",
                   "dataType": "pg/timestamptz",
-                  "nullable": false
+                  "nullable": false,
+                  "typeParams": {
+                    "precision": 3
+                  }
                 }
               },
               "foreignKeys": [],
@@ -752,9 +822,12 @@
                   "nullable": true
                 },
                 "accessTokenExpiresAt": {
-                  "codecId": "pg/timestamptz-temporal@1",
+                  "codecId": "pg/timestamptz-date@1",
                   "dataType": "pg/timestamptz",
-                  "nullable": true
+                  "nullable": true,
+                  "typeParams": {
+                    "precision": 3
+                  }
                 },
                 "accountId": {
                   "codecId": "pg/text@1",
@@ -762,9 +835,12 @@
                   "nullable": false
                 },
                 "createdAt": {
-                  "codecId": "pg/timestamptz-temporal@1",
+                  "codecId": "pg/timestamptz-date@1",
                   "dataType": "pg/timestamptz",
-                  "nullable": false
+                  "nullable": false,
+                  "typeParams": {
+                    "precision": 3
+                  }
                 },
                 "id": {
                   "codecId": "pg/text@1",
@@ -772,6 +848,11 @@
                   "nullable": false
                 },
                 "idToken": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": true
+                },
+                "issuer": {
                   "codecId": "pg/text@1",
                   "dataType": "pg/text",
                   "nullable": true
@@ -792,9 +873,12 @@
                   "nullable": true
                 },
                 "refreshTokenExpiresAt": {
-                  "codecId": "pg/timestamptz-temporal@1",
+                  "codecId": "pg/timestamptz-date@1",
                   "dataType": "pg/timestamptz",
-                  "nullable": true
+                  "nullable": true,
+                  "typeParams": {
+                    "precision": 3
+                  }
                 },
                 "scope": {
                   "codecId": "pg/text@1",
@@ -802,9 +886,12 @@
                   "nullable": true
                 },
                 "updatedAt": {
-                  "codecId": "pg/timestamptz-temporal@1",
+                  "codecId": "pg/timestamptz-date@1",
                   "dataType": "pg/timestamptz",
-                  "nullable": false
+                  "nullable": false,
+                  "typeParams": {
+                    "precision": 3
+                  }
                 },
                 "userId": {
                   "codecId": "pg/text@1",
@@ -824,14 +911,20 @@
             "login_sessions": {
               "columns": {
                 "createdAt": {
-                  "codecId": "pg/timestamptz-temporal@1",
+                  "codecId": "pg/timestamptz-date@1",
                   "dataType": "pg/timestamptz",
-                  "nullable": false
+                  "nullable": false,
+                  "typeParams": {
+                    "precision": 3
+                  }
                 },
                 "expiresAt": {
-                  "codecId": "pg/timestamptz-temporal@1",
+                  "codecId": "pg/timestamptz-date@1",
                   "dataType": "pg/timestamptz",
-                  "nullable": false
+                  "nullable": false,
+                  "typeParams": {
+                    "precision": 3
+                  }
                 },
                 "id": {
                   "codecId": "pg/text@1",
@@ -849,9 +942,12 @@
                   "nullable": false
                 },
                 "updatedAt": {
-                  "codecId": "pg/timestamptz-temporal@1",
+                  "codecId": "pg/timestamptz-date@1",
                   "dataType": "pg/timestamptz",
-                  "nullable": false
+                  "nullable": false,
+                  "typeParams": {
+                    "precision": 3
+                  }
                 },
                 "userAgent": {
                   "codecId": "pg/text@1",
@@ -882,14 +978,20 @@
             "verifications": {
               "columns": {
                 "createdAt": {
-                  "codecId": "pg/timestamptz-temporal@1",
+                  "codecId": "pg/timestamptz-date@1",
                   "dataType": "pg/timestamptz",
-                  "nullable": false
+                  "nullable": false,
+                  "typeParams": {
+                    "precision": 3
+                  }
                 },
                 "expiresAt": {
-                  "codecId": "pg/timestamptz-temporal@1",
+                  "codecId": "pg/timestamptz-date@1",
                   "dataType": "pg/timestamptz",
-                  "nullable": false
+                  "nullable": false,
+                  "typeParams": {
+                    "precision": 3
+                  }
                 },
                 "id": {
                   "codecId": "pg/text@1",
@@ -902,9 +1004,12 @@
                   "nullable": false
                 },
                 "updatedAt": {
-                  "codecId": "pg/timestamptz-temporal@1",
+                  "codecId": "pg/timestamptz-date@1",
                   "dataType": "pg/timestamptz",
-                  "nullable": false
+                  "nullable": false,
+                  "typeParams": {
+                    "precision": 3
+                  }
                 },
                 "value": {
                   "codecId": "pg/text@1",
@@ -934,7 +1039,7 @@
         "kind": "postgres-schema"
       }
     },
-    "storageHash": "913c44994c980142b78f50051026201b4f0a29228e338e79061a50b75dc496a8"
+    "storageHash": "e5e29a2d238d67e4f12203e9f54f707f907ff887501262f74d7584dd94ae2d7e"
   },
   "capabilities": {
     "postgres": {

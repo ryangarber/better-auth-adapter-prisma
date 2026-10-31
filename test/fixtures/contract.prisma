@@ -44,6 +44,8 @@ namespace adapter_test {
     userId String
     accountId String
     providerId String
+    // Required by Better Auth 1.7.0-1.7.2 only; later releases dropped it.
+    issuer String?
     accessToken String?
     refreshToken String?
     idToken String?

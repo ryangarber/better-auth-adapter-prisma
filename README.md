@@ -1,13 +1,13 @@
 # Better Auth adapter for Prisma 8
 
-A PostgreSQL adapter for **Prisma 8.0.0-rc.21** and **Better Auth ^1.7.5**, based on the behavior of Better Auth's Prisma 7 adapter. Uses Prisma 8's contract-driven ORM, including extension codecs, instead of the legacy Prisma Client API.
+A PostgreSQL adapter for **Prisma 8.0.0-rc.22** and **Better Auth ^1.4.19** (see [Better Auth compatibility](#better-auth-compatibility)), based on the behavior of Better Auth's Prisma 7 adapter. Uses Prisma 8's contract-driven ORM, including extension codecs, instead of the legacy Prisma Client API.
 
 Supports CRUD, filtering, selections, pagination, ordering, transactions, joins, numeric/UUID identifiers, and additional fields. PostgreSQL is the supported target; this package does not implement the separate MongoDB API or claim SQLite/MySQL support.
 
 ## Install
 
 ```sh
-pnpm add @ryangarber/better-auth-adapter-prisma better-auth @better-auth/core @prisma/orm-postgres@8.0.0-rc.21 temporal-polyfill
+pnpm add @ryangarber/better-auth-adapter-prisma better-auth @better-auth/core @prisma/orm-postgres@8.0.0-rc.22 temporal-polyfill
 ```
 
 Prisma RC versions are pinned because their query and generated-type APIs change between releases. The adapter does not create a database connection or close your client; pass your application's existing client with its runtime extensions registered.
@@ -161,6 +161,19 @@ This preserves codec input/output types on signup, updates, session results, and
 > Note that these helpers do not change Better Auth's hook/context types or plugin-defined input bodies, nor do they change how the fields are serialized.
 > This means that fields that are not supported in basic JSON requests (`bigint`, `Map`, etc.) may not deserialize the way you expect.
 
+## Better Auth compatibility
+
+The peer range is `^1.4.19`. CI runs the full suite against the floor and newest patch of each supported minor (`1.4.19`, `~1.4`, `~1.5`, `~1.6`, `1.7.0`, `latest`), plus the `beta` dist-tag as a non-blocking early warning.
+
+| Better Auth | Status |
+| --- | --- |
+| < 1.4.19 | Unsupported: no `createAdapterFactory` before 1.4.6, and no `findMany` `select` before 1.4.19. |
+| 1.4.19 – 1.5.x | Supported. Case-insensitive filters (`mode`) and `consumeOne`/`incrementOne` don't exist in Better Auth yet. |
+| 1.6.x | Supported. Case-insensitive filters are available. Joins are enabled with `experimental.joins`. |
+| ≥ 1.7.0 | Supported. Better Auth uses the adapter's native `consumeOne`/`incrementOne`. Joins are enabled with `advanced.database.joins`. Better Auth 1.7.0–1.7.2 also require an `issuer` field on `Account`, which later releases dropped. |
+
+Tests for features that Better Auth adds within the range are skipped on versions that predate them.
+
 ## Technical details
 
 The adapter tries to match the official Prisma 7 adapter exactly:
@@ -169,21 +182,25 @@ The adapter tries to match the official Prisma 7 adapter exactly:
 - AND conditions are combined with the OR group, matching the original adapter. Null list members are removed; an empty `in` matches nothing and an empty `not_in` matches everything.
 - Operations use Prisma's codec-aware predicates. A codec must advertise the comparison/order traits needed by a query. Codec, database, and constraint errors propagate.
 - Single-row updates/deletes affect at most one match. Missing updates return `null`; missing deletes are no-ops. Better Auth guards empty single-row mutation predicates.
-- Bulk updates/deletes use affected-row counts. Better Auth's built-in compare-and-swap fallbacks implement guarded increments and single-use consumption using these atomic operations. Prisma's single-row read-then-write methods are not advertised as atomic guarded operations.
+- Bulk updates/deletes use affected-row counts.
+- `consumeOne` and `incrementOne` are implemented natively. Prisma's ORM can't express `SET n = n + $delta`, and its single-row update/delete don't re-check the predicate, so each call locks the first matching row with `SELECT ... FOR UPDATE` and then deletes or updates it by id in the same transaction. That's the current transaction if Better Auth's callback is running inside one; otherwise the adapter opens one, whatever the `transaction` option is set to. Concurrent callers wait on the lock, then PostgreSQL re-checks their predicate against the committed row, so exactly one consumer gets the row and a guard like `remaining > 0` holds. A racer that loses gets `null`; it doesn't move on to another matching row. Missing counters count as `0`.
 - Built-in PostgreSQL `DateTime`/Temporal and date-string codecs are adapted on Better Auth `date` fields to/from JavaScript `Date`, including filters. Timestamp-without-time-zone values are treated as UTC. Custom extension codecs are not converted.
 
 ## Development and verification
 
 ```sh
 pnpm install
-pnpm typecheck
-pnpm typecheck:contract  # Generated Prisma declarations, with skipLibCheck disabled.
+pnpm typecheck  # Includes the generated Prisma declarations, with skipLibCheck disabled.
 pnpm lint
 pnpm build
 pnpm test
 
 # Explicit opt-in; creates a unique ba_test_* schema and drops it in finally/afterAll.
 ADAPTER_TEST_DATABASE_URL=postgresql://localhost:5432/postgres pnpm test
+
+# Run against another Better Auth version (exact, range or dist-tag). Modifies package.json
+# and the lockfile, so revert afterwards.
+node .github/scripts/use-better-auth.mjs ~1.5
 ```
 
 Live tests require PostgreSQL and `psql`. They emit the fixture contract, provision isolated tables, exercise real codecs and Better Auth, and clean up their schema. They cover storage names, mappings, rich values, different input/output types, date conversion, filtering, pagination, joins, rollback, concurrent consumption/increments, and signup/session/update. They do not test Prisma migrations or production contract signing; the isolated fixture runtime disables marker verification.

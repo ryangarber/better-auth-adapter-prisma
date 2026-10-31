@@ -28,8 +28,7 @@
     "lint": "biome check --write",
     "test": "vitest run",
     "prepublishOnly": "pnpm build",
-    "typecheck": "tsc --noEmit",
-    "typecheck:contract": "tsc -p tsconfig.contract.json"
+    "typecheck": "tsc --noEmit && tsc -p tsconfig.contract.json"
   },
   "repository": {
     "type": "git",
@@ -44,22 +43,22 @@
   "license": "MIT",
   "devDependencies": {
     "@better-auth/core": "^1.7.14",
-    "@biomejs/biome": "^2.6.3",
-    "@prisma/orm-postgres": "8.0.0-rc.21",
-    "@prisma/orm-toolchain": "8.0.0-rc.21",
-    "@ryangarber/prisma-orm-extension-zod": "^0.2.13",
-    "@types/node": "^26.6.5",
+    "@biomejs/biome": "^2.6.4",
+    "@prisma/orm-postgres": "8.0.0-rc.22",
+    "@prisma/orm-toolchain": "8.0.0-rc.22",
+    "@ryangarber/prisma-orm-extension-zod": "^0.2.14",
+    "@types/node": "^26.6.6",
     "better-auth": "^1.7.14",
     "temporal-spec": "^1.0.1",
-    "tsdown": "^0.23.3",
+    "tsdown": "^0.23.4",
     "typescript": "^7.0.2",
     "vitest": "^5.0.5",
     "zod": "^4.6.7"
   },
   "types": "./dist/index.d.mts",
   "peerDependencies": {
-    "@better-auth/core": "^1.7.0",
-    "@prisma/orm-postgres": "8.0.0-rc.21"
+    "@better-auth/core": "^1.4.19",
+    "@prisma/orm-postgres": "8.0.0-rc.22"
   },
   "dependencies": {
     "temporal-polyfill": "^1.0.6"

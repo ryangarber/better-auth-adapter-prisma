@@ -39,11 +39,67 @@ jobs:
       - name: Typecheck
         run: pnpm typecheck
 
-      - name: Typecheck contract
-        run: pnpm typecheck:contract
-
       - name: Build
         run: pnpm build
+
+      - name: Test
+        run: ADAPTER_TEST_DATABASE_URL=postgresql://postgres:postgres@localhost:5432/adapter_test pnpm test
+
+  # Runs the suite against the supported Better Auth range. Keep in sync with the
+  # @better-auth/core peer range in package.json and the README.
+  compat:
+    name: better-auth ${{ matrix.better-auth }}
+    runs-on: ubuntu-latest
+    continue-on-error: ${{ matrix.experimental }}
+
+    strategy:
+      fail-fast: false
+      matrix:
+        better-auth:
+          # Floor: first release with createAdapterFactory and findMany `select`.
+          - "1.4.19"
+          - "~1.4"
+          - "~1.5"
+          - "~1.6"
+          # First release that calls the adapter's consumeOne/incrementOne, and
+          # (until 1.7.3) requires them to be implemented natively.
+          - "1.7.0"
+          - "latest"
+        experimental: [false]
+        include:
+          # Early warning for the next minor; doesn't fail the workflow.
+          - better-auth: "beta"
+            experimental: true
+
+    services:
+      postgres:
+        image: paradedb/paradedb:latest
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: adapter_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres -d adapter_test"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 10
+          --shm-size=1g
+
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Install dependencies
+        uses: pnpm/setup@v3
+        with:
+          cache: true
+
+      - name: Install Better Auth ${{ matrix.better-auth }}
+        run: node .github/scripts/use-better-auth.mjs "${{ matrix.better-auth }}"
+
+      - name: Typecheck
+        run: pnpm typecheck
 
       - name: Test
         run: ADAPTER_TEST_DATABASE_URL=postgresql://postgres:postgres@localhost:5432/adapter_test pnpm test
