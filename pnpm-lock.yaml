@@ -177,14 +177,14 @@ importers:
         specifier: ^2.6.4
         version: 2.6.4
       '@prisma/orm-postgres':
-        specifier: 8.0.0-rc.22
-        version: 8.0.0-rc.22(@prisma/cli-engine@0.9.0(@prisma/management-api-sdk@1.90.0))(temporal-polyfill@1.0.6)(typanion@3.14.0)(typescript@7.0.2)(vite@8.3.5(@types/node@26.6.6)(esbuild@0.28.2)(jiti@2.7.0))
+        specifier: 8.0.0-rc.23
+        version: 8.0.0-rc.23(@prisma/cli-engine@0.9.0(@prisma/management-api-sdk@1.90.0))(temporal-polyfill@1.0.6)(typanion@3.14.0)(typescript@7.0.2)(vite@8.3.5(@types/node@26.6.6)(esbuild@0.28.2)(jiti@2.7.0))
       '@prisma/orm-toolchain':
-        specifier: 8.0.0-rc.22
-        version: 8.0.0-rc.22(@prisma/cli-engine@0.9.0(@prisma/management-api-sdk@1.90.0))(typanion@3.14.0)(typescript@7.0.2)(vite@8.3.5(@types/node@26.6.6)(esbuild@0.28.2)(jiti@2.7.0))
+        specifier: 8.0.0-rc.23
+        version: 8.0.0-rc.23(@prisma/cli-engine@0.9.0(@prisma/management-api-sdk@1.90.0))(typanion@3.14.0)(typescript@7.0.2)(vite@8.3.5(@types/node@26.6.6)(esbuild@0.28.2)(jiti@2.7.0))
       '@ryangarber/prisma-orm-extension-zod':
         specifier: ^0.2.14
-        version: 0.2.14(@prisma/orm-postgres@8.0.0-rc.22(@prisma/cli-engine@0.9.0(@prisma/management-api-sdk@1.90.0))(temporal-polyfill@1.0.6)(typanion@3.14.0)(typescript@7.0.2)(vite@8.3.5(@types/node@26.6.6)(esbuild@0.28.2)(jiti@2.7.0)))
+        version: 0.2.14(@prisma/orm-postgres@8.0.0-rc.23(@prisma/cli-engine@0.9.0(@prisma/management-api-sdk@1.90.0))(temporal-polyfill@1.0.6)(typanion@3.14.0)(typescript@7.0.2)(vite@8.3.5(@types/node@26.6.6)(esbuild@0.28.2)(jiti@2.7.0)))
       '@types/node':
         specifier: ^26.6.6
         version: 26.6.6
@@ -557,33 +557,24 @@ packages:
   '@prisma/management-api-sdk@1.90.0':
     resolution: {integrity: sha512-COvumt37ADWmn0vpV4yyEDeHYJN82AIml99gc+EHsIKnXr9UV+wMSRrThslt8A+wSQ2/tCSOBPjxLBfKl0NhTg==}
 
-  '@prisma/orm-family-sql@8.0.0-rc.22':
-    resolution: {integrity: sha512-odUcc7ywa1VnY4wVtcroGdcp8GqG76eWB0X0jYYYZWgIovxFnZnEl0oYPH1HXfSIBKmCtLmQ2QJXlUUF/M0ryw==}
+  '@prisma/orm-family-sql@8.0.0-rc.23':
+    resolution: {integrity: sha512-BRHwT0f83dXRiYPY0YYyUNocwuRdyLvVJZYZ3BNVZBoqiY4vxN4nbEo+mQpdwhemvrQ9C8AzJdK5dJt8vuVsSQ==}
     peerDependencies:
       typescript: '>=5.9'
     peerDependenciesMeta:
       typescript:
         optional: true
 
-  '@prisma/orm-framework@8.0.0-rc.22':
-    resolution: {integrity: sha512-Av51rTKY/spAirW9FQvpNkqwKZ6EbHb2E1jo1zLhCLwTYeZ4l1aPvbeAy24i1D59nG0xzEcfFUUXPJofc/TVvA==}
+  '@prisma/orm-framework@8.0.0-rc.23':
+    resolution: {integrity: sha512-iwPh/qcrRG4TgB5C8vPyK/qD8spOqi8yeKxMbyFqtylhRQJAbcrEVMhGba9C/CUvCdAiVvTvaO0XhvvTPrdL5w==}
     peerDependencies:
       typescript: '>=5.9'
     peerDependenciesMeta:
       typescript:
         optional: true
 
-  '@prisma/orm-postgres@8.0.0-rc.22':
-    resolution: {integrity: sha512-z5yqcLLTIo4eMU+mAn2ojJZYk4LdOgyY35KEicFjOgxddQaf32yE1d5HuWDDZ3QomYsmz1tLX+8P7trAARuu7Q==}
-    peerDependencies:
-      temporal-polyfill: ^1.0.4
-      typescript: '>=5.9'
-    peerDependenciesMeta:
-      typescript:
-        optional: true
-
-  '@prisma/orm-target-postgres@8.0.0-rc.22':
-    resolution: {integrity: sha512-gn5uEib8Ovonv5p2IHzZRCcKPvceiPIZQjA9b1ozjtaoVwYCeKM9z+aoThMWoA9h/DEBuwf2HHnfkSoE/rVwfA==}
+  '@prisma/orm-postgres@8.0.0-rc.23':
+    resolution: {integrity: sha512-RqhtQsmiuX2ULMG6MhCSeurD689OSHPLFOeBT622HItlLx6nXAazZTFaW+LvEBLQrdV0qIDcILX2CsWAK++ECQ==}
     peerDependencies:
       temporal-polyfill: ^1.0.4
       typescript: '>=5.9'
@@ -591,8 +582,17 @@ packages:
       typescript:
         optional: true
 
-  '@prisma/orm-toolchain@8.0.0-rc.22':
-    resolution: {integrity: sha512-gVGP5KFb3ZoOSglvpJ+MEjQQUJgqKXY1+z6RAiRLTXvOxypfSz/qNOSh4YjwOsJaBEy/Nb+n4yMs5IhWfl04rg==}
+  '@prisma/orm-target-postgres@8.0.0-rc.23':
+    resolution: {integrity: sha512-WUo8q5FCMLd0RLuCPIrnYrH0QVIvw37HHAgzkUmshhJBN72NDrjTc38r06DxCeRBE09cN6wchMVVRM1xUfAQ+w==}
+    peerDependencies:
+      temporal-polyfill: ^1.0.4
+      typescript: '>=5.9'
+    peerDependenciesMeta:
+      typescript:
+        optional: true
+
+  '@prisma/orm-toolchain@8.0.0-rc.23':
+    resolution: {integrity: sha512-mctCtrOZbT/xHjtHSGA+dNOpzJeAgtcwbJsz7NuGdxHRy2gy5x1eOG0dekAdi/ij2JVZ8EwlXQDBNRPKrgQqeA==}
     peerDependencies:
       '@prisma/cli-engine': 0.9.0
       typescript: '>=5.9'
@@ -2005,10 +2005,10 @@ snapshots:
     dependencies:
       openapi-fetch: 0.14.0
 
-  '@prisma/orm-family-sql@8.0.0-rc.22(@prisma/cli-engine@0.9.0(@prisma/management-api-sdk@1.90.0))(typanion@3.14.0)(typescript@7.0.2)(vite@8.3.5(@types/node@26.6.6)(esbuild@0.28.2)(jiti@2.7.0))':
+  '@prisma/orm-family-sql@8.0.0-rc.23(@prisma/cli-engine@0.9.0(@prisma/management-api-sdk@1.90.0))(typanion@3.14.0)(typescript@7.0.2)(vite@8.3.5(@types/node@26.6.6)(esbuild@0.28.2)(jiti@2.7.0))':
     dependencies:
-      '@prisma/orm-framework': 8.0.0-rc.22(typescript@7.0.2)
-      '@prisma/orm-toolchain': 8.0.0-rc.22(@prisma/cli-engine@0.9.0(@prisma/management-api-sdk@1.90.0))(typanion@3.14.0)(typescript@7.0.2)(vite@8.3.5(@types/node@26.6.6)(esbuild@0.28.2)(jiti@2.7.0))
+      '@prisma/orm-framework': 8.0.0-rc.23(typescript@7.0.2)
+      '@prisma/orm-toolchain': 8.0.0-rc.23(@prisma/cli-engine@0.9.0(@prisma/management-api-sdk@1.90.0))(typanion@3.14.0)(typescript@7.0.2)(vite@8.3.5(@types/node@26.6.6)(esbuild@0.28.2)(jiti@2.7.0))
       '@standard-schema/spec': 1.1.0
       arktype: 2.2.9
       pathe: 2.0.3
@@ -2023,22 +2023,23 @@ snapshots:
       - typanion
       - vite
 
-  '@prisma/orm-framework@8.0.0-rc.22(typescript@7.0.2)':
+  '@prisma/orm-framework@8.0.0-rc.23(typescript@7.0.2)':
     dependencies:
       '@standard-schema/spec': 1.1.0
       arktype: 2.2.9
       pathe: 2.0.3
+      temporal-spec: 1.0.1
       tinyglobby: 0.2.17
       uniku: 0.5.0
     optionalDependencies:
       typescript: 7.0.2
 
-  '@prisma/orm-postgres@8.0.0-rc.22(@prisma/cli-engine@0.9.0(@prisma/management-api-sdk@1.90.0))(temporal-polyfill@1.0.6)(typanion@3.14.0)(typescript@7.0.2)(vite@8.3.5(@types/node@26.6.6)(esbuild@0.28.2)(jiti@2.7.0))':
+  '@prisma/orm-postgres@8.0.0-rc.23(@prisma/cli-engine@0.9.0(@prisma/management-api-sdk@1.90.0))(temporal-polyfill@1.0.6)(typanion@3.14.0)(typescript@7.0.2)(vite@8.3.5(@types/node@26.6.6)(esbuild@0.28.2)(jiti@2.7.0))':
     dependencies:
-      '@prisma/orm-family-sql': 8.0.0-rc.22(@prisma/cli-engine@0.9.0(@prisma/management-api-sdk@1.90.0))(typanion@3.14.0)(typescript@7.0.2)(vite@8.3.5(@types/node@26.6.6)(esbuild@0.28.2)(jiti@2.7.0))
-      '@prisma/orm-framework': 8.0.0-rc.22(typescript@7.0.2)
-      '@prisma/orm-target-postgres': 8.0.0-rc.22(@prisma/cli-engine@0.9.0(@prisma/management-api-sdk@1.90.0))(temporal-polyfill@1.0.6)(typanion@3.14.0)(typescript@7.0.2)(vite@8.3.5(@types/node@26.6.6)(esbuild@0.28.2)(jiti@2.7.0))
-      '@prisma/orm-toolchain': 8.0.0-rc.22(@prisma/cli-engine@0.9.0(@prisma/management-api-sdk@1.90.0))(typanion@3.14.0)(typescript@7.0.2)(vite@8.3.5(@types/node@26.6.6)(esbuild@0.28.2)(jiti@2.7.0))
+      '@prisma/orm-family-sql': 8.0.0-rc.23(@prisma/cli-engine@0.9.0(@prisma/management-api-sdk@1.90.0))(typanion@3.14.0)(typescript@7.0.2)(vite@8.3.5(@types/node@26.6.6)(esbuild@0.28.2)(jiti@2.7.0))
+      '@prisma/orm-framework': 8.0.0-rc.23(typescript@7.0.2)
+      '@prisma/orm-target-postgres': 8.0.0-rc.23(@prisma/cli-engine@0.9.0(@prisma/management-api-sdk@1.90.0))(temporal-polyfill@1.0.6)(typanion@3.14.0)(typescript@7.0.2)(vite@8.3.5(@types/node@26.6.6)(esbuild@0.28.2)(jiti@2.7.0))
+      '@prisma/orm-toolchain': 8.0.0-rc.23(@prisma/cli-engine@0.9.0(@prisma/management-api-sdk@1.90.0))(typanion@3.14.0)(typescript@7.0.2)(vite@8.3.5(@types/node@26.6.6)(esbuild@0.28.2)(jiti@2.7.0))
       '@types/node': 26.1.2
       '@types/pg': 8.20.4
       arktype: 2.2.9
@@ -2056,11 +2057,11 @@ snapshots:
       - typanion
       - vite
 
-  '@prisma/orm-target-postgres@8.0.0-rc.22(@prisma/cli-engine@0.9.0(@prisma/management-api-sdk@1.90.0))(temporal-polyfill@1.0.6)(typanion@3.14.0)(typescript@7.0.2)(vite@8.3.5(@types/node@26.6.6)(esbuild@0.28.2)(jiti@2.7.0))':
+  '@prisma/orm-target-postgres@8.0.0-rc.23(@prisma/cli-engine@0.9.0(@prisma/management-api-sdk@1.90.0))(temporal-polyfill@1.0.6)(typanion@3.14.0)(typescript@7.0.2)(vite@8.3.5(@types/node@26.6.6)(esbuild@0.28.2)(jiti@2.7.0))':
     dependencies:
-      '@prisma/orm-family-sql': 8.0.0-rc.22(@prisma/cli-engine@0.9.0(@prisma/management-api-sdk@1.90.0))(typanion@3.14.0)(typescript@7.0.2)(vite@8.3.5(@types/node@26.6.6)(esbuild@0.28.2)(jiti@2.7.0))
-      '@prisma/orm-framework': 8.0.0-rc.22(typescript@7.0.2)
-      '@prisma/orm-toolchain': 8.0.0-rc.22(@prisma/cli-engine@0.9.0(@prisma/management-api-sdk@1.90.0))(typanion@3.14.0)(typescript@7.0.2)(vite@8.3.5(@types/node@26.6.6)(esbuild@0.28.2)(jiti@2.7.0))
+      '@prisma/orm-family-sql': 8.0.0-rc.23(@prisma/cli-engine@0.9.0(@prisma/management-api-sdk@1.90.0))(typanion@3.14.0)(typescript@7.0.2)(vite@8.3.5(@types/node@26.6.6)(esbuild@0.28.2)(jiti@2.7.0))
+      '@prisma/orm-framework': 8.0.0-rc.23(typescript@7.0.2)
+      '@prisma/orm-toolchain': 8.0.0-rc.23(@prisma/cli-engine@0.9.0(@prisma/management-api-sdk@1.90.0))(typanion@3.14.0)(typescript@7.0.2)(vite@8.3.5(@types/node@26.6.6)(esbuild@0.28.2)(jiti@2.7.0))
       '@standard-schema/spec': 1.1.0
       '@types/node': 26.1.2
       '@types/pg': 8.20.4
@@ -2081,10 +2082,10 @@ snapshots:
       - typanion
       - vite
 
-  '@prisma/orm-toolchain@8.0.0-rc.22(@prisma/cli-engine@0.9.0(@prisma/management-api-sdk@1.90.0))(typanion@3.14.0)(typescript@7.0.2)(vite@8.3.5(@types/node@26.6.6)(esbuild@0.28.2)(jiti@2.7.0))':
+  '@prisma/orm-toolchain@8.0.0-rc.23(@prisma/cli-engine@0.9.0(@prisma/management-api-sdk@1.90.0))(typanion@3.14.0)(typescript@7.0.2)(vite@8.3.5(@types/node@26.6.6)(esbuild@0.28.2)(jiti@2.7.0))':
     dependencies:
       '@prisma/cli-engine': 0.9.0(@prisma/management-api-sdk@1.90.0)
-      '@prisma/orm-framework': 8.0.0-rc.22(typescript@7.0.2)
+      '@prisma/orm-framework': 8.0.0-rc.23(typescript@7.0.2)
       '@vercel/detect-agent': 1.2.7
       arktype: 2.2.9
       c12: 3.3.4
@@ -2161,9 +2162,9 @@ snapshots:
 
   '@rolldown/pluginutils@1.0.1': {}
 
-  '@ryangarber/prisma-orm-extension-zod@0.2.14(@prisma/orm-postgres@8.0.0-rc.22(@prisma/cli-engine@0.9.0(@prisma/management-api-sdk@1.90.0))(temporal-polyfill@1.0.6)(typanion@3.14.0)(typescript@7.0.2)(vite@8.3.5(@types/node@26.6.6)(esbuild@0.28.2)(jiti@2.7.0)))':
+  '@ryangarber/prisma-orm-extension-zod@0.2.14(@prisma/orm-postgres@8.0.0-rc.23(@prisma/cli-engine@0.9.0(@prisma/management-api-sdk@1.90.0))(temporal-polyfill@1.0.6)(typanion@3.14.0)(typescript@7.0.2)(vite@8.3.5(@types/node@26.6.6)(esbuild@0.28.2)(jiti@2.7.0)))':
     dependencies:
-      '@prisma/orm-postgres': 8.0.0-rc.22(@prisma/cli-engine@0.9.0(@prisma/management-api-sdk@1.90.0))(temporal-polyfill@1.0.6)(typanion@3.14.0)(typescript@7.0.2)(vite@8.3.5(@types/node@26.6.6)(esbuild@0.28.2)(jiti@2.7.0))
+      '@prisma/orm-postgres': 8.0.0-rc.23(@prisma/cli-engine@0.9.0(@prisma/management-api-sdk@1.90.0))(temporal-polyfill@1.0.6)(typanion@3.14.0)(typescript@7.0.2)(vite@8.3.5(@types/node@26.6.6)(esbuild@0.28.2)(jiti@2.7.0))
       ponyfill-temporal: 0.1.0
       zod: 4.6.7
 
