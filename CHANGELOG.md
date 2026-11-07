@@ -1,3 +1,13 @@
+## v0.2.0 (2026-11-07)
+
+### Breaking Changes
+
+- rename package, bump runtime and deps ([6493c78](https://github.com/ryangarber/better-auth-prisma-orm/commit/6493c78bfe1a39b183bc4fd859fbac73d07f5a13))
+
+### Other
+
+- **deps:** update Prisma packages ([70846a2](https://github.com/ryangarber/better-auth-prisma-orm/commit/70846a2f63e4bbccbeb1a9a842cb273fbd34a231))
+
 ## v0.1.14 (2026-10-31)
 
 ### Other
