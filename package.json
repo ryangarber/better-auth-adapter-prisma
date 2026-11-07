@@ -1,8 +1,8 @@
 {
-  "name": "@ryangarber/better-auth-adapter-prisma",
+  "name": "better-auth-prisma-orm",
   "type": "module",
   "version": "0.1.14",
-  "description": "Better Auth adapter for Prisma 8 PostgreSQL with codec-preserving additional user fields",
+  "description": "A Better Auth adapter for Prisma 8 built with extensions in mind.",
   "sideEffects": false,
   "main": "./dist/index.mjs",
   "exports": {
@@ -42,17 +42,17 @@
   "author": "Ryan Garber <ryanmichaelgarber@gmail.com>",
   "license": "MIT",
   "devDependencies": {
-    "@better-auth/core": "^1.7.14",
-    "@biomejs/biome": "^2.6.4",
+    "@better-auth/core": "^1.7.18",
+    "@biomejs/biome": "^2.6.6",
     "@prisma/orm-postgres": "8.0.0-rc.23",
     "@prisma/orm-toolchain": "8.0.0-rc.23",
-    "@ryangarber/prisma-orm-extension-zod": "^0.2.14",
+    "prisma-orm-extension-zod": "^0.3.0",
     "@types/node": "^26.6.6",
-    "better-auth": "^1.7.14",
+    "better-auth": "^1.7.18",
     "temporal-spec": "^1.0.1",
-    "tsdown": "^0.23.4",
-    "typescript": "^7.0.2",
-    "vitest": "^5.0.5",
+    "tsdown": "^0.23.7",
+    "typescript": "7.1.0-beta",
+    "vitest": "^5.1.0",
     "zod": "^4.6.7"
   },
   "types": "./dist/index.d.mts",
@@ -61,13 +61,13 @@
     "@prisma/orm-postgres": "8.0.0-rc.23"
   },
   "dependencies": {
-    "temporal-polyfill": "^1.0.6"
+    "temporal-polyfill": "^1.0.8"
   },
-  "packageManager": "pnpm@12.14.0+sha512.c18ba6d87993d3d164cb5e8948f32b2c06ee854487e06cd8d86781342fb3e5bb4634367034711e86802baa9c37bea906ce1929ad08d70884c97d801df13389a6",
+  "packageManager": "pnpm@12.18.0+sha512.9d7882d5dc82147ecfc4e062aa34834e0ad0296710a1837a1115ae012127d36b7109e321ac1598a1dd0a65597681b1e99917e12ed0d749eae91187943363beb3",
   "devEngines": {
     "runtime": {
       "name": "node",
-      "version": "^24.22.2",
+      "version": ">=24 <27",
       "onFail": "download"
     }
   }

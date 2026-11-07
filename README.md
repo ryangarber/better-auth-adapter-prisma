@@ -7,7 +7,7 @@ Supports CRUD, filtering, selections, pagination, ordering, transactions, joins,
 ## Install
 
 ```sh
-pnpm add @ryangarber/better-auth-adapter-prisma better-auth @better-auth/core @prisma/orm-postgres@8.0.0-rc.23 temporal-polyfill
+pnpm add better-auth-prisma-orm better-auth @better-auth/core @prisma/orm-postgres@8.0.0-rc.23 temporal-polyfill
 ```
 
 Prisma RC versions are pinned because their query and generated-type APIs change between releases. The adapter does not create a database connection or close your client; pass your application's existing client with its runtime extensions registered.
@@ -16,7 +16,7 @@ Prisma RC versions are pinned because their query and generated-type APIs change
 // auth.ts
 import "temporal-polyfill/global"; // Required by Prisma DateTime codecs on runtimes without Temporal.
 import { betterAuth } from "better-auth";
-import { prismaAdapter } from "@ryangarber/better-auth-adapter-prisma";
+import { prismaAdapter } from "better-auth-prisma-orm";
 import { db } from "./prisma/db";
 
 export const auth = betterAuth({
@@ -101,8 +101,8 @@ You must use `type: "json"`. Better Auth treats this as generic record, allowing
 
 ```ts
 import { betterAuth } from "better-auth";
-import { prismaAdapter } from "@ryangarber/better-auth-adapter-prisma";
-import { prismaUserFields } from "@ryangarber/better-auth-adapter-prisma/client";
+import { prismaAdapter } from "better-auth-prisma-orm";
+import { prismaUserFields } from "better-auth-prisma-orm/client";
 import type { Contract } from "./prisma/contract";
 import { db } from "./prisma/db";
 
@@ -139,7 +139,7 @@ Import the runtime-free, browser-safe `/client` wrapper and import your `userFie
 ```ts
 import { createAuthClient } from "better-auth/client";
 import { inferAdditionalFields } from "better-auth/client/plugins";
-import { inferAuthClient } from "@ryangarber/better-auth-adapter-prisma/client";
+import { inferAuthClient } from "better-auth-prisma-orm/client";
 import type { auth, userFields } from "./auth";
 
 export const authClient = inferAuthClient<typeof userFields>()(createAuthClient({

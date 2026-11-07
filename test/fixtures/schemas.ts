@@ -1,8 +1,8 @@
-import type { CodecTypes } from "@ryangarber/prisma-orm-extension-zod/codec-types";
+import type { CodecTypes } from "prisma-orm-extension-zod/codec-types";
 import {
 	createZodExtension,
 	defineZodSchema,
-} from "@ryangarber/prisma-orm-extension-zod/column-types";
+} from "prisma-orm-extension-zod/column-types";
 import { z } from "zod";
 
 const Profile = z.object({
